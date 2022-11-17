@@ -30,10 +30,10 @@ func TestConnBidirectional(t *testing.T) {
 	// }
 
 	if err := <-chCli; err != nil {
-		t.Fatal("client error: ", err)
+		t.Error("client error: ", err)
 	}
 	if errServer != nil {
-		t.Fatal("server error: ", errServer)
+		t.Error("server error: ", errServer)
 	}
 	fmt.Println("done.")
 
