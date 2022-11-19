@@ -63,5 +63,4 @@ func RunServer(address string, errCh chan error) {
 	}
 	fmt.Println("sever replied, exiting..")
 	errCh <- nil
-	defer fmt.Println("server exited")
 }
