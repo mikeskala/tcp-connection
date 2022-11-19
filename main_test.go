@@ -2,39 +2,42 @@ package main
 
 import (
 	"fmt"
-	"sync"
 	"testing"
 
 	"tcp-connection/client"
+	"tcp-connection/server"
 )
 
 func TestConnBidirectional(t *testing.T) {
 
-	var wg sync.WaitGroup
-	wg.Add(1)
-	chCli := make(chan error, 1)
-	// chSrv := make(chan error)
+	errChan := make(chan error, 2)
 
-	// run a client & server threads
-	go server(&wg)
-	go client.RunClient(address, chCli)
+	// run a client & server as threads
+	go server.RunServer(address, errChan)
+	go client.RunClient(address, errChan)
 
-	fmt.Println("main is waiting..")
-	wg.Wait()
+	fmt.Println("main test is waiting..")
 
 	// select {
-	// case err1 := <-chCli:
-	// 	t.Fatal("client error: ", err1)
-	// case err2 := <-chSrv:
-	// 	t.Fatal("server error: ", err2)
+	// case err := <-errChan:
+	// 	if err != nil {
+	// 		t.Error("client error: ", err)
+	// 	}
+	// case err := <-chSrv:
+	// 	if err != nil {
+	// 		t.Error("server error: ", err)
+	// 	}
+	// case <-time.After(time.Second * 8):
+	// 	t.Fatal("test stuck")
 	// }
 
-	if err := <-chCli; err != nil {
-		t.Error("client error: ", err)
+	for i := 0; i < 2; i++ {
+		if err := <-errChan; err != nil {
+			t.Error("client/server error: ", err)
+		}
+		fmt.Println("main test got message #", i)
 	}
-	if errServer != nil {
-		t.Error("server error: ", errServer)
-	}
-	fmt.Println("done.")
+
+	fmt.Println("main test done")
 
 }

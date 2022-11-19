@@ -4,6 +4,7 @@ import (
 	//"main"
 
 	"fmt"
+	"io/ioutil"
 	"net"
 	"sync"
 )
@@ -33,19 +34,26 @@ func RunClient(address string, errCh chan error) {
 
 	var replyWG sync.WaitGroup
 	replyWG.Add(1)
+	var success bool
 	go func() {
 		defer replyWG.Done()
 
-		// fmt.Println("client waiting for server reply")
-		// buf, err := ioutil.ReadAll(conn)
+		fmt.Println("client waiting for server reply")
+		buf, err := ioutil.ReadAll(conn)
 		if err != nil {
 			errCh <- err
 			return
 		}
-		//reply := string(buf[:])
-		// fmt.Println("client got reply: ", buf[:])
+		reply := string(buf[:])
+		fmt.Println("client got reply: ", buf[:])
+		fmt.Println("client got reply: ", reply)
+		success = true
 	}()
 	replyWG.Wait()
+	if !success {
+		fmt.Println("client goroutine filed")
+		return
+	}
 
 	fmt.Println("client exiting..")
 	errCh <- nil
