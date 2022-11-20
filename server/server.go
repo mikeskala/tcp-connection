@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"fmt"
 	"net"
-	"sync"
 )
 
 func RunServer(address string, errCh chan error) {
@@ -27,33 +26,20 @@ func RunServer(address string, errCh chan error) {
 	defer conn.Close()
 	fmt.Println("server connected to: Local:", conn.LocalAddr(), "Remote:", conn.RemoteAddr())
 
-	var readWG sync.WaitGroup
-	readWG.Add(1)
-	var success bool
-	go func() {
-		defer readWG.Done()
+	// wait for message
+	msg, err := bufio.NewReader(conn).ReadString('.')
+	// buf, err := ioutil.ReadAll(conn)
+	if err != nil {
+		errCh <- err
+		return
+	}
+	// msg := string(buf[:])
+	fmt.Println("server got msg: ", msg)
 
-		// wait for message
-		msg, err := bufio.NewReader(conn).ReadString('.')
-		// buf, err := ioutil.ReadAll(conn)
-		if err != nil {
-			errCh <- err
-			return
-		}
-		// msg := string(buf[:])
-		fmt.Println("server got msg: ", msg)
-
-		// test
-		if msg != "hi there." {
-			err = fmt.Errorf("server got unexpected message: %s", msg)
-			errCh <- err
-			return
-		}
-		success = true
-	}()
-	readWG.Wait()
-	if !success {
-		fmt.Println("server goroutine failed")
+	// test
+	if msg != "hi there." {
+		err = fmt.Errorf("server got unexpected message: %s", msg)
+		errCh <- err
 		return
 	}
 
@@ -62,6 +48,6 @@ func RunServer(address string, errCh chan error) {
 		errCh <- err
 		return
 	}
-	fmt.Println("sever replied, exiting..")
+	fmt.Println("sever replied")
 	errCh <- nil
 }

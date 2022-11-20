@@ -12,8 +12,6 @@ var address = "localhost:6073"
 
 // use main () to run client / server each in a separate process
 func main() {
-	// THIS DOES NOT WORK WITH 2 SEPARATE PROCESSES
-	// (I SEE THAT CLIENT & SERVER DON'T TALK ON THE SAME PORT)
 	errChan := make(chan error, 1)
 
 	arg := os.Args[1]
