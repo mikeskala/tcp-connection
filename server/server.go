@@ -1,8 +1,8 @@
 package server
 
 import (
+	"bufio"
 	"fmt"
-	"io/ioutil"
 	"net"
 	"sync"
 )
@@ -34,16 +34,17 @@ func RunServer(address string, errCh chan error) {
 		defer readWG.Done()
 
 		// wait for message
-		buf, err := ioutil.ReadAll(conn)
+		msg, err := bufio.NewReader(conn).ReadString('.')
+		// buf, err := ioutil.ReadAll(conn)
 		if err != nil {
 			errCh <- err
 			return
 		}
-		msg := string(buf[:])
+		// msg := string(buf[:])
 		fmt.Println("server got msg: ", msg)
 
 		// test
-		if msg != "hi there" {
+		if msg != "hi there." {
 			err = fmt.Errorf("server got unexpected message: %s", msg)
 			errCh <- err
 			return
@@ -52,12 +53,12 @@ func RunServer(address string, errCh chan error) {
 	}()
 	readWG.Wait()
 	if !success {
-		fmt.Println("server goroutine filed")
+		fmt.Println("server goroutine failed")
 		return
 	}
 
 	// reply
-	if _, err := fmt.Fprintf(conn, "ok"); err != nil {
+	if _, err := fmt.Fprintf(conn, "ok."); err != nil {
 		errCh <- err
 		return
 	}
