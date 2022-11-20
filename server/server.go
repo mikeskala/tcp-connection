@@ -28,12 +28,10 @@ func RunServer(address string, errCh chan error) {
 
 	// wait for message
 	msg, err := bufio.NewReader(conn).ReadString('.')
-	// buf, err := ioutil.ReadAll(conn)
 	if err != nil {
 		errCh <- err
 		return
 	}
-	// msg := string(buf[:])
 	fmt.Println("server got msg: ", msg)
 
 	// test

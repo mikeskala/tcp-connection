@@ -31,7 +31,6 @@ func RunClient(address string, errCh chan error) {
 	fmt.Println("client sent msg, waiting for server reply")
 
 	reply, err := bufio.NewReader(conn).ReadString('.')
-	// buf, err := ioutil.ReadAll(conn)
 	if err != nil {
 		errCh <- err
 		return
