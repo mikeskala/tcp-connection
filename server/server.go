@@ -2,9 +2,15 @@ package server
 
 import (
 	"bufio"
+	"encoding/json"
 	"fmt"
 	"net"
 )
+
+type Msg struct {
+	Body string
+	Id   int
+}
 
 func RunServer(address string, errCh chan error) {
 	defer fmt.Println("server exited")
@@ -27,7 +33,9 @@ func RunServer(address string, errCh chan error) {
 	fmt.Println("server connected to: Local:", conn.LocalAddr(), "Remote:", conn.RemoteAddr())
 
 	// wait for message
-	msg, err := bufio.NewReader(conn).ReadString('.')
+	decoder := json.NewDecoder(bufio.NewReader(conn))
+	var msg Msg
+	err = decoder.Decode(&msg)
 	if err != nil {
 		errCh <- err
 		return
@@ -35,14 +43,14 @@ func RunServer(address string, errCh chan error) {
 	fmt.Println("server got msg: ", msg)
 
 	// test
-	if msg != "hi there." {
-		err = fmt.Errorf("server got unexpected message: %s", msg)
+	if msg.Body != "hi there" {
+		err = fmt.Errorf("server got unexpected message body: %v", msg.Body)
 		errCh <- err
 		return
 	}
 
-	// reply
-	if _, err := fmt.Fprintf(conn, "ok."); err != nil {
+	reply := `{"id": 2, "body": "ok"}`
+	if _, err := fmt.Fprintf(conn, reply); err != nil {
 		errCh <- err
 		return
 	}
