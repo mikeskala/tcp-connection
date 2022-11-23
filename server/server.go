@@ -48,16 +48,20 @@ func RunServer(address string, errCh chan error) {
 	// test
 	if msg.Body != "hi there" {
 		err = fmt.Errorf("- server got unexpected message body: %v", msg.Body)
+		fmt.Println(err.Error())
 		errCh <- err
 		return
 	}
 
-	reply := `{"id": 2, "body": "ok"}`
-	if _, err := fmt.Fprintf(conn, reply); err != nil {
+	// reply
+	payload, _ := json.Marshal(Msg{Id: 2, Body: "ok"})
+	_, err = conn.Write(payload)
+	if err != nil {
 		errCh <- err
 		fmt.Println("- server reply error: ", err.Error())
 		return
 	}
-	fmt.Println("- server replied")
+
+	fmt.Println("- server replied, all is OK")
 	errCh <- nil
 }

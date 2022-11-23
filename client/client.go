@@ -47,6 +47,13 @@ func RunClient(address string, errCh chan error) {
 		return
 	}
 	fmt.Println("--client got reply: ", reply)
+	if reply.Body != "ok" {
+		err = fmt.Errorf("--client wrong reply error: %v !?", reply.Body)
+		fmt.Println(err.Error())
+		errCh <- err
+		return
+	}
 
+	fmt.Println("--client all is OK")
 	errCh <- nil
 }
